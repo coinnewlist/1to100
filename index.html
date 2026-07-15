@@ -411,31 +411,76 @@
         let selectedCoinId = null;
         
         if (tableBody) {
-            let touchHandled = false;
+            let touchActive = false;
             let touchStartTarget = null;
+            let touchStartX = 0;
+            let touchStartY = 0;
+            let touchStartTime = 0;
+            let touchMoved = false;
+
+            const resetTouchState = () => {
+                touchActive = false;
+                touchStartTarget = null;
+                touchMoved = false;
+            };
 
             tableBody.addEventListener('touchstart', (event) => {
                 const row = event.target.closest('tr.crypto-row');
-                if (!row) return;
-                touchHandled = false;
+                if (!row) {
+                    resetTouchState();
+                    return;
+                }
+
+                const touch = event.touches[0];
+                touchActive = true;
                 touchStartTarget = row;
+                touchStartX = touch.clientX;
+                touchStartY = touch.clientY;
+                touchStartTime = Date.now();
+                touchMoved = false;
+            }, { passive: true });
+
+            tableBody.addEventListener('touchmove', (event) => {
+                if (!touchActive || !touchStartTarget) return;
+
+                const touch = event.touches[0];
+                const deltaX = touch.clientX - touchStartX;
+                const deltaY = touch.clientY - touchStartY;
+
+                if (Math.abs(deltaX) > 8 || Math.abs(deltaY) > 8) {
+                    touchMoved = true;
+                }
             }, { passive: true });
 
             tableBody.addEventListener('touchend', (event) => {
+                if (!touchActive || !touchStartTarget) return;
+
                 const row = event.target.closest('tr.crypto-row');
-                if (!row || row !== touchStartTarget) return;
+                const touch = event.changedTouches[0];
+                const deltaX = touch ? touch.clientX - touchStartX : 0;
+                const deltaY = touch ? touch.clientY - touchStartY : 0;
+                const elapsed = Date.now() - touchStartTime;
+
+                if (!row || row !== touchStartTarget || touchMoved || Math.abs(deltaX) > 8 || Math.abs(deltaY) > 8 || elapsed > 300) {
+                    resetTouchState();
+                    return;
+                }
+
                 event.preventDefault();
-                touchHandled = true;
                 const index = Number(row.dataset.cryptoIndex);
                 if (!Number.isNaN(index) && currentCryptoData[index]) {
                     selectCrypto(currentCryptoData[index]);
                 }
+                resetTouchState();
             }, { passive: false });
+
+            tableBody.addEventListener('touchcancel', () => {
+                resetTouchState();
+            }, { passive: true });
 
             tableBody.addEventListener('click', (event) => {
                 const row = event.target.closest('tr.crypto-row');
                 if (!row) return;
-                if (touchHandled) return;
                 const index = Number(row.dataset.cryptoIndex);
                 if (!Number.isNaN(index) && currentCryptoData[index]) {
                     selectCrypto(currentCryptoData[index]);
