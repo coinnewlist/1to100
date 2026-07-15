@@ -411,9 +411,31 @@
         let selectedCoinId = null;
         
         if (tableBody) {
+            let touchHandled = false;
+            let touchStartTarget = null;
+
+            tableBody.addEventListener('touchstart', (event) => {
+                const row = event.target.closest('tr.crypto-row');
+                if (!row) return;
+                touchHandled = false;
+                touchStartTarget = row;
+            }, { passive: true });
+
+            tableBody.addEventListener('touchend', (event) => {
+                const row = event.target.closest('tr.crypto-row');
+                if (!row || row !== touchStartTarget) return;
+                event.preventDefault();
+                touchHandled = true;
+                const index = Number(row.dataset.cryptoIndex);
+                if (!Number.isNaN(index) && currentCryptoData[index]) {
+                    selectCrypto(currentCryptoData[index]);
+                }
+            }, { passive: false });
+
             tableBody.addEventListener('click', (event) => {
                 const row = event.target.closest('tr.crypto-row');
                 if (!row) return;
+                if (touchHandled) return;
                 const index = Number(row.dataset.cryptoIndex);
                 if (!Number.isNaN(index) && currentCryptoData[index]) {
                     selectCrypto(currentCryptoData[index]);
@@ -473,17 +495,6 @@
                 row.setAttribute('role', 'row');
                 row.setAttribute('aria-label', `View details for ${name}`);
                 row.dataset.cryptoIndex = i;
-                row.addEventListener('click', () => selectCrypto(crypto));
-                row.addEventListener('touchend', (event) => {
-                    event.preventDefault();
-                    selectCrypto(crypto);
-                });
-                row.addEventListener('keydown', (event) => {
-                    if (event.key === 'Enter' || event.key === ' ') {
-                        event.preventDefault();
-                        selectCrypto(crypto);
-                    }
-                });
                 
                 // Rank cell
                 const rankCell = document.createElement('td');
