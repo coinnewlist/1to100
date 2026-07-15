@@ -68,6 +68,31 @@
             vertical-align: middle;
             margin-right: 5px;
         }
+        .trending {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .trending-item {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+        .trending-item:hover {
+            background: #f8fbff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+        }
+        .trending-item img {
+            width: 16px;
+            margin-right: 5px;
+        }
 
         @media (max-width: 768px) {
             table {
@@ -203,9 +228,19 @@
         .back-button:hover {
             background: #dbe9ff;
         }
+        #cryptoTableWrapper,
+        #cryptoTable,
+        .crypto-row,
+        .crypto-row td {
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            pointer-events: auto;
+        }
         .crypto-row {
             cursor: pointer;
             transition: background-color 0.2s ease;
+            user-select: none;
+            -webkit-user-select: none;
         }
         .crypto-row:hover {
             background: #f8fbff;
@@ -221,6 +256,66 @@
         .crypto-name-mobile {
             display: none;
         }
+        .crypto-column {
+            width: 100%;
+            max-width: 360px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 18px;
+            padding: 20px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+            backdrop-filter: blur(10px);
+            margin: 12px 0 20px;
+        }
+        .title { margin: 0 0 16px; font-size: 20px; font-weight: 700; color: #fff; }
+        .crypto-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+        .crypto-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 12px; border-radius: 12px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .coin { display: flex; align-items: center; gap: 10px; }
+        .coin-icon {
+            width: 28px; height: 28px; border-radius: 50%;
+            background: linear-gradient(135deg, #38bdf8, #818cf8);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; color: white; text-transform: uppercase;
+        }
+        .coin-name { font-weight: 600; font-size: 14px; }
+        .coin-symbol { display: block; font-size: 11px; color: #94a3b8; text-transform: uppercase; margin-top: 2px; }
+        .price { color: #34d399; font-weight: 700; font-size: 13px; }
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 18px;
+        }
+        .pagination-btn {
+            border: 1px solid #d9e3ef;
+            background: #ffffff;
+            color: #111827;
+            border-radius: 999px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        .pagination-btn:hover:not(:disabled) {
+            border-color: #2563eb;
+            color: #2563eb;
+        }
+        .pagination-btn.active {
+            background: #2563eb;
+            border-color: #2563eb;
+            color: #ffffff;
+        }
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
         @media (max-width: 768px) {
             .crypto-name-desktop {
                 display: none;
@@ -228,47 +323,39 @@
             .crypto-name-mobile {
                 display: inline;
             }
+            .pagination-btn {
+                padding: 7px 10px;
+                font-size: 13px;
+            }
         }
     </style>
 </head>
 <body>
-    <nav>
-    </nav>
-    
-    <div id="all-crypto-section" class="section active container">
+    <h2><img src="https://avatars.githubusercontent.com/u/292855028?v=4" class="crypto-logo" style="width:58px; vertical-align: middle;"> CoinNewList</h2>
+    <div id="all-crypto-section" class="container">
+        <h3 style="margin-top: 20px;">Most Visited Cryptocurrencies</h3>
         <div id="cryptoTableWrapper">
             <table id="cryptoTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Crypto</th>
+                        <th>Market Cap</th>
+                        <th>Price</th>
+                        <th>1h % Change</th>
+                        <th>24h % Change</th>
+                    </tr>
+                </thead>
                 <tbody id="cryptoTableBody">
                     <tr><td colspan="6" class="loading-state">Loading 1-100 cryptocurrencies...</td></tr>
                 </tbody>
             </table>
         </div>
-        <div id="detailsContainer" class="details-panel" style="display:none;"></div>
-        <div id="externalRankingContainer" style="display:none; margin-top:12px;">
-            <iframe id="externalRankingFrame" src="ranking.html" style="width:100%; height:1000px; border:none; border-radius:8px;" onerror="this.outerHTML='<div class=&quot;loading-state&quot;>Ranking page is unavailable. Upload ranking.html to the same folder as this page.</div>'"></iframe>
-        </div>
+        <div id="paginationContainer" class="pagination-container"></div>
+        <div id="coinDetailsPanel" class="details-panel" style="display:none;"></div>
     </div>
-
-    <div id="newlist-section" class="section container" style="display: none;">
-        <h3>📌 CoinNewList NewList</h3>
-        <iframe id="newlistIframe" src="https://coinnewlist.github.io/newlist/" style="width: 100%; height: 900px; border: none; border-radius: 8px; margin-top: 20px;"></iframe>
-        <div class="refresh-status">🔄 Live NewList from CoinNewList</div>
-    </div>
-
-    <div id="trending-section" class="section container" style="display: none;">
-        <h3>📈 CoinNewList Trending</h3>
-        <iframe id="trendingIframe" src="https://coinnewlist.github.io/trending/" style="width: 100%; height: 900px; border: none; border-radius: 8px; margin-top: 20px;"></iframe>
-        <div class="refresh-status">🔄 Live Trending from CoinNewList</div>
-    </div>
-
-    <div id="news-section" class="section container" style="display: none;">
-        <h3>📰 CoinNewList News</h3>
-        <iframe id="newsIframe" src="https://coinnewlist.github.io/news/" style="width: 100%; height: 900px; border: none; border-radius: 8px; margin-top: 20px;"></iframe>
-        <div class="refresh-status">🔄 Live News from CoinNewList</div>
-    </div>
-    
     <script>
-        // ========== RENDERING + PAGINATION FOR 90 PAGES ==========
+        // ========== RENDERING + PAGINATION FOR 100 PAGES ==========
         // Fast, smooth updates while preserving original visual theme
 
         // Format market cap with K/M/B/T suffixes (clean & original style)
@@ -318,32 +405,39 @@
         }
         
         // DOM elements
-        const trendingContainer = document.getElementById('trendingContainer');
         const tableBody = document.getElementById('cryptoTableBody');
         const cryptoTableWrapper = document.getElementById('cryptoTableWrapper');
-        const coinDetailsPanel = (() => {
-            let panel = document.getElementById('detailsContainer');
-            if (!panel) {
-                panel = document.createElement('div');
-                panel.id = 'detailsContainer';
-                panel.className = 'details-panel';
-                panel.style.display = 'none';
-                const target = cryptoTableWrapper || document.body;
-                target.appendChild(panel);
-            }
-            return panel;
-        })();
+        const coinDetailsPanel = document.getElementById('coinDetailsPanel');
+        let selectedCoinId = null;
         
+        if (tableBody) {
+            tableBody.addEventListener('click', (event) => {
+                const row = event.target.closest('tr.crypto-row');
+                if (!row) return;
+                const index = Number(row.dataset.cryptoIndex);
+                if (!Number.isNaN(index) && currentCryptoData[index]) {
+                    selectCrypto(currentCryptoData[index]);
+                }
+            });
+            tableBody.addEventListener('keydown', (event) => {
+                if (event.key !== 'Enter' && event.key !== ' ') return;
+                const row = event.target.closest('tr.crypto-row');
+                if (!row) return;
+                event.preventDefault();
+                const index = Number(row.dataset.cryptoIndex);
+                if (!Number.isNaN(index) && currentCryptoData[index]) {
+                    selectCrypto(currentCryptoData[index]);
+                }
+            });
+        }
         // Ranking constants
         const ITEMS_PER_PAGE = 100;
-        const TOTAL_PAGES = 1;
+        const TOTAL_PAGES = 100;
         
         // Cache for current data (smooth updates)
         let currentCryptoData = [];
         let currentPage = 1;
         let renderScheduled = false;
-        let selectedCoinId = null;
-        let ignoreNextHashChange = false;
         
         // ========== RENDER TABLE - BATCH UPDATES FOR SMOOTHNESS ==========
         function renderTable() {
@@ -375,9 +469,20 @@
                 
                 const row = document.createElement('tr');
                 row.className = 'crypto-row';
-                row.style.cursor = 'pointer';
-                row.addEventListener('click', () => {
+                row.setAttribute('tabindex', '0');
+                row.setAttribute('role', 'row');
+                row.setAttribute('aria-label', `View details for ${name}`);
+                row.dataset.cryptoIndex = i;
+                row.addEventListener('click', () => selectCrypto(crypto));
+                row.addEventListener('touchend', (event) => {
+                    event.preventDefault();
                     selectCrypto(crypto);
+                });
+                row.addEventListener('keydown', (event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        selectCrypto(crypto);
+                    }
                 });
                 
                 // Rank cell
@@ -421,7 +526,48 @@
         }
 
         function renderPagination() {
-            // Pagination removed
+            const container = document.getElementById('paginationContainer');
+            if (!container) return;
+
+            const isMobile = window.matchMedia('(max-width: 768px)').matches;
+            const visiblePageCount = isMobile ? 4 : 10;
+            const halfWindow = Math.floor(visiblePageCount / 2);
+            let startPage = Math.max(1, currentPage - halfWindow);
+            let endPage = startPage + visiblePageCount - 1;
+
+            if (endPage > TOTAL_PAGES) {
+                endPage = TOTAL_PAGES;
+                startPage = Math.max(1, endPage - visiblePageCount + 1);
+            }
+
+            const buttons = [];
+
+            if (currentPage > 1) {
+                const prevButton = document.createElement('button');
+                prevButton.className = 'pagination-btn';
+                prevButton.textContent = 'Prev';
+                prevButton.addEventListener('click', () => setPage(currentPage - 1));
+                buttons.push(prevButton);
+            }
+
+            for (let page = startPage; page <= endPage; page++) {
+                const pageButton = document.createElement('button');
+                pageButton.className = `pagination-btn${page === currentPage ? ' active' : ''}`;
+                pageButton.textContent = page;
+                pageButton.addEventListener('click', () => setPage(page));
+                buttons.push(pageButton);
+            }
+
+            if (currentPage < TOTAL_PAGES) {
+                const nextButton = document.createElement('button');
+                nextButton.className = 'pagination-btn';
+                nextButton.textContent = 'Next';
+                nextButton.addEventListener('click', () => setPage(currentPage + 1));
+                buttons.push(nextButton);
+            }
+
+            container.innerHTML = '';
+            buttons.forEach((button) => container.appendChild(button));
         }
 
         function showDetailsLoading() {
@@ -433,32 +579,32 @@
         function hideMainContent() {
             const header = document.querySelector('h2');
             const nav = document.querySelector('nav');
-            const trendingSection = document.getElementById('trendingContainer');
             const tableWrapper = document.getElementById('cryptoTableWrapper');
             const heading = document.querySelector('#all-crypto-section h3');
+            const pagination = document.getElementById('paginationContainer');
             const section = document.getElementById('all-crypto-section');
 
             if (header) header.style.display = 'none';
             if (nav) nav.style.display = 'none';
-            if (trendingSection) trendingSection.style.display = 'none';
             if (tableWrapper) tableWrapper.style.display = 'none';
             if (heading) heading.style.display = 'none';
+            if (pagination) pagination.style.display = 'none';
             if (section) section.style.padding = '0';
         }
 
         function showMainContent() {
             const header = document.querySelector('h2');
             const nav = document.querySelector('nav');
-            const trendingSection = document.getElementById('trendingContainer');
             const tableWrapper = document.getElementById('cryptoTableWrapper');
             const heading = document.querySelector('#all-crypto-section h3');
+            const pagination = document.getElementById('paginationContainer');
             const section = document.getElementById('all-crypto-section');
 
             if (header) header.style.display = '';
             if (nav) nav.style.display = '';
-            if (trendingSection) trendingSection.style.display = '';
             if (tableWrapper) tableWrapper.style.display = '';
             if (heading) heading.style.display = '';
+            if (pagination) pagination.style.display = '';
             if (section) section.style.padding = '';
         }
 
@@ -668,34 +814,6 @@
             });
         }
 
-        function getRankingUrlForPage(page) {
-            return 'ranking.html';
-        }
-
-        function toggleRankingView(showExternal, page = currentPage) {
-            const rankingUrl = getRankingUrlForPage(page);
-            const shouldShowExternal = showExternal && !!rankingUrl;
-            const externalRankingFrame = document.getElementById('externalRankingFrame');
-
-            if (cryptoTableWrapper) {
-                cryptoTableWrapper.style.display = 'block';
-            }
-            if (coinDetailsPanel) {
-                coinDetailsPanel.style.display = 'block';
-            }
-            if (externalRankingContainer) {
-                externalRankingContainer.style.display = shouldShowExternal ? 'block' : 'none';
-            }
-            if (shouldShowExternal && externalRankingFrame && externalRankingFrame.src !== rankingUrl) {
-                externalRankingFrame.src = rankingUrl;
-            }
-        }
-
-        // ========== RENDER TRENDING (ORIGINAL STYLE) ==========
-        function renderTrending() {
-            // Trending section removed
-        }
-        
         // ========== API FETCHING WITH RACE CONDITION HANDLING ==========
         let currentMarketFetchId = 0;
         
@@ -703,8 +821,12 @@
             if (page < 1 || page > TOTAL_PAGES) return;
             if (page === currentPage) return;
             currentPage = page;
-            toggleRankingView(false, page);
-            scheduleTableRender();
+            renderPagination();
+            if (tableBody) {
+                const startRank = ((currentPage - 1) * ITEMS_PER_PAGE) + 1;
+                const endRank = currentPage * ITEMS_PER_PAGE;
+                tableBody.innerHTML = `<tr><td colspan="6" class="loading-state">Loading ${startRank}-${endRank} cryptocurrencies...</td></tr>`;
+            }
             fetchCryptoPage(page);
         }
 
@@ -737,15 +859,10 @@
                 if (error.name !== 'AbortError' && fetchId === currentMarketFetchId) {
                     console.error('Market fetch error:', error);
                     if (currentCryptoData.length === 0) {
-                        tableBody.innerHTML = '<tr><td colspan="6" class="loading-state">⚠️ Network error. Reconnecting...</td></tr>';
+                        tableBody.innerHTML = '<tr><td colspan="6" class="loading-state">Loading 1-100 cryptocurrencies...</td></tr>';
                     }
                 }
             }
-        }
-        
-        // Fetch trending cryptocurrencies
-        async function fetchTrendingCrypto() {
-            // Trending fetch removed
         }
         
         // ========== LIVE REFRESH EVERY 1 SECOND (ORIGINAL BEHAVIOR) ==========
@@ -758,22 +875,19 @@
             // Initial fetch immediately
             fetchCryptoPage(currentPage);
             
-            // Set intervals for 1-second updates (as original requirement)
+            // Refresh page data at a moderate rate to avoid API rate limits
             marketInterval = setInterval(() => {
                 fetchCryptoPage(currentPage);
-            }, 1000);
+            }, 15000);
         }
         
         // Handle page visibility to reduce background work (preserves original style)
         function handleVisibilityChange() {
             if (document.hidden) {
-                // Stop intervals when tab is hidden to save resources
                 if (marketInterval) clearInterval(marketInterval);
             } else {
-                // Resume intervals when tab becomes visible
                 if (marketInterval) clearInterval(marketInterval);
-                marketInterval = setInterval(() => fetchCryptoPage(currentPage), 1000);
-                // Also fetch fresh data immediately
+                marketInterval = setInterval(() => fetchCryptoPage(currentPage), 15000);
                 fetchCryptoPage(currentPage);
             }
         }
@@ -787,76 +901,12 @@
             document.removeEventListener('visibilitychange', handleVisibilityChange);
         });
         
-        function setActiveSection(section) {
-            document.querySelectorAll('.section').forEach(el => {
-                el.style.display = 'none';
-                el.classList.remove('active');
-            });
-            document.querySelectorAll('.nav-link').forEach(el => {
-                el.classList.remove('active');
-            });
-            const sectionElement = document.getElementById(`${section}-section`);
-            if (sectionElement) {
-                sectionElement.style.display = 'block';
-                sectionElement.classList.add('active');
-            } else {
-                const fallbackSection = document.getElementById('all-crypto-section');
-                if (fallbackSection) {
-                    fallbackSection.style.display = 'block';
-                    fallbackSection.classList.add('active');
-                }
-            }
-            const navLink = document.querySelector(`[data-section="${section}"]`);
-            if (navLink) navLink.classList.add('active');
-        }
-
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const section = e.currentTarget.getAttribute('data-section');
-                if (section) {
-                    setActiveSection(section);
-                }
-            });
-        });
-
-        // Keep section navigation local without changing the browser hash.
-        window.addEventListener('hashchange', () => {
-            const h = (location.hash || '').replace(/^#/, '');
-            if (!h || ['all-crypto', 'newlist', 'trending', 'news'].includes(h)) {
-                setActiveSection(h || 'all-crypto');
-            }
-        });
-
-        function restoreCoinFromUrl() {
-            const params = new URLSearchParams(window.location.search);
-            const coinId = params.get('coin');
-
-            if (!coinId) {
-                updateDataAddress();
-                toggleRankingView(false);
-                currentPage = 1;
-                showMainContent();
-                if (coinDetailsPanel) {
-                    coinDetailsPanel.style.display = 'none';
-                    coinDetailsPanel.innerHTML = '';
-                }
-                return;
-            }
-
-            selectedCoinId = coinId;
-            hideMainContent();
-            showDetailsLoading();
-            selectCryptoById(coinId);
-        }
-
         // Start everything when page loads
+        window.addEventListener('resize', renderPagination);
+
         window.onload = () => {
+            renderPagination();
             startLiveUpdates();
-            const h = (location.hash || '').replace(/^#/, '');
-            const initialSection = ['all-crypto', 'newlist', 'trending', 'news'].includes(h) ? h : 'all-crypto';
-            setActiveSection(initialSection);
-            restoreCoinFromUrl();
         };
         
         // Optional: preload image cache for better visual smoothness
